@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="warn">
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %msg%n"/>
+        </Console>
+        <Console name="ConsoleDebug" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}.%M() @%L - %msg%n"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="log/client.log" filePattern="log/client-%i.log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [${hostName}][%t] %-5level %logger{36}.%M() @%L - %msg%n"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="1000KB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="9"/>
+        </RollingFile>
+    </appenders>
+
+    <loggers>
+        <root level="TRACE">
+            <appender-ref ref="Console" level="INFO"/>
+            <appender-ref ref="RollingFile" level="INFO"/>
+        </root>
+    </loggers>
+</configuration>

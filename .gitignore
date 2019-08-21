@@ -1,0 +1,11 @@
+documents/
+.gradle/
+.idea/workspace.xml
+gradle/
+log/
+out/
+jre/
+build/
+setting.json
+tls/
+*.exe
