@@ -18,6 +18,7 @@
       <element id="library" level="project" name="Gradle: org.apache.logging.log4j:log4j-core:2.11.2" />
       <element id="library" level="project" name="Gradle: org.slf4j:slf4j-api:1.7.25" />
       <element id="library" level="project" name="Gradle: junit:junit:4.12" />
+      <element id="library" level="project" name="Gradle: com.google.code.gson:gson:2.8.5" />
     </root>
   </artifact>
 </component>
