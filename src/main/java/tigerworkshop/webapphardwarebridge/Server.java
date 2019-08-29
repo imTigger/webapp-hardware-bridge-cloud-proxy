@@ -19,6 +19,7 @@ public class Server {
         options.addOption(Option.builder().longOpt("ca-bundle").desc("CA Bundle Path").hasArg(true).required(false).build());
         options.addOption(Option.builder().longOpt("bind").desc("Bind Address").hasArg(true).required(false).build());
         options.addOption(Option.builder().longOpt("port").desc("Port").hasArg(true).required(false).build());
+        options.addOption(Option.builder().longOpt("timeout").desc("Timeout").hasArg(true).required(false).build());
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
@@ -42,7 +43,7 @@ public class Server {
             // Additional Options
             webSocketServer.setReuseAddr(true);
             webSocketServer.setTcpNoDelay(true);
-            webSocketServer.setConnectionLostTimeout(3);
+            webSocketServer.setConnectionLostTimeout(Integer.parseInt(cmd.getOptionValue("timeout", "30")));
 
             // Start WebSocket tigerworkshop.webapphardwarebridge.Server
             webSocketServer.start();
