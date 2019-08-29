@@ -44,7 +44,7 @@ public class ProxyWebSocketServer extends WebSocketServer {
 
     @Override
     public void onClose(WebSocket connection, int code, String reason, boolean remote) {
-        logger.trace(connection.toString() + " disconnected");
+        logger.info(connection.getRemoteSocketAddress() + " disconnected");
     }
 
     @Override
@@ -57,14 +57,14 @@ public class ProxyWebSocketServer extends WebSocketServer {
         PrintRequest printRequest = gson.fromJson(message, PrintRequest.class);
 
         channel = channel + "/" + printRequest.getId();
-        // connection.setAttachment();
 
         ArrayList<WebSocket> webSockets = getSocketListForChannel(channel);
-        logger.trace("Forwarding to " + webSockets.size() + " proxy client connections");
+        logger.info("Forwarding to " + webSockets.size() + " proxy client connections");
         for (Iterator<WebSocket> it = webSockets.iterator(); it.hasNext(); ) {
             WebSocket webSocket = it.next();
             try {
                 webSocket.send(message);
+                logger.info("Forwarded to " + webSocket.getRemoteSocketAddress());
             } catch (WebsocketNotConnectedException e) {
                 logger.warn("WebsocketNotConnectedException: Removing connection from list");
                 it.remove();
