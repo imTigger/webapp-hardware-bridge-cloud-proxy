@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tigerworkshop.webapphardwarebridge.responses.PrintRequest;
 
+import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +20,7 @@ import java.util.Iterator;
 public class ProxyWebSocketServer extends WebSocketServer {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private HashMap<String, ArrayList<WebSocket>> socketChannelSubscriptions = new HashMap<>();
+    private HashMap<String, ArrayList<WeakReference<WebSocket>>> socketChannelSubscriptions = new HashMap<>();
 
     public ProxyWebSocketServer(String address, int port) {
         super(new InetSocketAddress(address, port));
@@ -58,11 +59,13 @@ public class ProxyWebSocketServer extends WebSocketServer {
 
         channel = channel + "/" + printRequest.getId();
 
-        ArrayList<WebSocket> webSockets = getSocketListForChannel(channel);
+        ArrayList<WeakReference<WebSocket>> webSockets = getSocketListForChannel(channel);
+
         logger.info("Forwarding to " + webSockets.size() + " proxy client connections");
-        for (Iterator<WebSocket> it = webSockets.iterator(); it.hasNext(); ) {
-            WebSocket webSocket = it.next();
+        for (Iterator<WeakReference<WebSocket>> it = webSockets.iterator(); it.hasNext(); ) {
+            WeakReference<WebSocket> webSocketWeakReference = it.next();
             try {
+                WebSocket webSocket = webSocketWeakReference.get();
                 webSocket.send(message);
                 logger.info("Forwarded to " + webSocket.getRemoteSocketAddress());
             } catch (WebsocketNotConnectedException e) {
@@ -82,8 +85,8 @@ public class ProxyWebSocketServer extends WebSocketServer {
         logger.info("BridgeWebSocketServer started");
     }
 
-    private ArrayList<WebSocket> getSocketListForChannel(String channel) {
-        ArrayList<WebSocket> socketList = socketChannelSubscriptions.get(channel);
+    private ArrayList<WeakReference<WebSocket>> getSocketListForChannel(String channel) {
+        ArrayList<WeakReference<WebSocket>> socketList = socketChannelSubscriptions.get(channel);
         if (socketList == null) {
             return new ArrayList<>();
         }
@@ -91,14 +94,14 @@ public class ProxyWebSocketServer extends WebSocketServer {
     }
 
     private void addSocketToChannel(String channel, WebSocket socket) {
-        ArrayList<WebSocket> connectionList = getSocketListForChannel(channel);
-        connectionList.add(socket);
+        ArrayList<WeakReference<WebSocket>> connectionList = getSocketListForChannel(channel);
+        connectionList.add(new WeakReference<>(socket));
         socketChannelSubscriptions.put(channel, connectionList);
     }
 
     private void removeSocketFromChannel(String channel, WebSocket socket) {
-        ArrayList<WebSocket> connectionList = getSocketListForChannel(channel);
-        connectionList.remove(socket);
+        ArrayList<WeakReference<WebSocket>> connectionList = getSocketListForChannel(channel);
+        connectionList.removeIf(wr -> socket.equals(wr.get()));
         socketChannelSubscriptions.put(channel, connectionList);
     }
 }
