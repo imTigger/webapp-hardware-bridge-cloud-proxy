@@ -27,6 +27,16 @@ public class ProxyWebSocketServer extends WebSocketServer {
     }
 
     @Override
+    public void run() {
+        try {
+            super.run();
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+            System.exit(1);
+        }
+    }
+
+    @Override
     public void onOpen(WebSocket connection, ClientHandshake handshake) {
         try {
             String descriptor = handshake.getResourceDescriptor();
